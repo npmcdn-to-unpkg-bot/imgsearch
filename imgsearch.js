@@ -15,19 +15,16 @@ app.get("/recent", function(req, res) { //to see recent queries
     mongo.connect(mongoUrl, function(err, db) {
         if (err) throw err;
         var collection = db.collection('recent');
-        var dbQuery = collection.find({}).toArray(function(err, doc) {
+        var dbQuery = collection.find({"title":"Recent queries"}).forEach(function(recent) {
+            
             if (err) throw err;
-            db.close();
-
-            var recent = [];
-            for (var i = doc.length - 1; i > doc.length - 6; i--) {
-                recent.push(doc[i].query);
-            }
-
+           
+            
             res.writeHead(200, {
                 "Content-type": "Application/JSON"
             });
-            res.end("Last 5 searches : " + JSON.stringify(recent));
+            res.end("Last 5 searches : " + JSON.stringify(recent["list"]));
+             db.close();
         });
 
     });
@@ -63,14 +60,11 @@ app.get("/search", function(req, res) {
 
     //add recent queries to mongo db
     mongo.connect(mongoUrl, function(err, db) {
-        var doc = {
-            "query": term
-        };
         if (err) throw err;
 
         var collection = db.collection('recent');
 
-        collection.insert(doc, function(err, data) {
+        collection.updateOne({"title":"Recent queries"},{$push: {"list":term}}, {upsert: true}, function(err, data) {
             if (err) throw err;
             db.close();
         })

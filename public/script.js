@@ -50,7 +50,7 @@
     data = data.results;
     console.log(data);
     $("#results").html("");
-    var html = "";
+    var html = ""; 
     data.forEach(function(item) {
 
      var image = "<img src = '" + item.url + "' alt='" + item.alt + "' width ='250px' class='imgitem'>";
