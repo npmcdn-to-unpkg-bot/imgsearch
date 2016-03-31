@@ -15,20 +15,17 @@ app.get("/recent", function(req, res) { //to see recent queries
     mongo.connect(mongoUrl, function(err, db) {
         if (err) throw err;
         var collection = db.collection('recent');
-        var dbQuery = collection.find({"title":"Recent queries"}).forEach(function(recent) {
-            
+        var dbQuery = collection.find({
+            "title": "Recent queries"
+        }).forEach(function(recent) {
             if (err) throw err;
-           
-            
             res.writeHead(200, {
                 "Content-type": "Application/JSON"
             });
             res.end("Last 5 searches : " + JSON.stringify(recent["list"]));
-             db.close();
+            db.close();
         });
-
     });
-
 })
 
 app.get("/search", function(req, res) {
@@ -64,7 +61,9 @@ app.get("/search", function(req, res) {
 
         var collection = db.collection('recent');
 
-        collection.updateOne({"title":"Recent queries"},{$push: {"list":term}}, {upsert: true}, function(err, data) {
+        collection.updateOne({
+            "title": "Recent queries"
+        }, { $push: { "list": {term, $slice: -5}}}, {upsert: true}, function(err, data) {
             if (err) throw err;
             db.close();
         })
@@ -77,7 +76,6 @@ app.get("/search", function(req, res) {
         xhr.onload = function() {
             if (xhr.status == 200) {
                 var results = tidy(JSON.parse(xhr.responseText));
-                //console.log(results);
                 writeResponse(results);
             }
             else {
